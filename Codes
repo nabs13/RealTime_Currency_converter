@@ -1,0 +1,107 @@
+#Importing required libraries 
+import tkinter as tk
+from tkinter import *
+import requests, json
+
+HEIGHT = 500
+WIDTH = 600
+
+global rate,result
+api_key = ""#Enter your key here!!!!!
+
+
+def from_callback(*args):
+   print(from_tkvar.get())
+   from_currency = from_tkvar.get()
+
+
+   
+def select_callback(*args):
+   print(select_tkvar.get())
+   select_currency = select_tkvar.get()
+
+# Function to get real time currency exchange 
+def RealTimeCurrencyExchangeRate(from_currency, select_currency, api_key) :
+	# base_url variable store base url 
+	base_url = r"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE"
+	# main_url variable store complete url 
+	main_url = base_url + "&from_currency=" + from_currency +"&to_currency=" + select_currency + "&apikey=" + api_key 
+	# get method of requests module 
+	# return response object 
+	req_ob = requests.get(main_url) 
+	# json method return json format 
+	# data into python dictionary data type. 
+	# result contains list of nested dictionaries 
+	result = req_ob.json() 
+	print(" Result before parsing the json data :\n", result) 
+
+	rate = float(result["Realtime Currency Exchange Rate"]['5. Exchange Rate'])
+	global value
+	value = int(amount_entry.get())
+	global result_value
+	result_value = value * rate
+	print("I am a float ", rate,"result ",result_value)
+	print(type(result))
+	return rate,result
+
+def show_result():
+        from_currency = from_tkvar.get()
+        select_currency = select_tkvar.get()
+        RealTimeCurrencyExchangeRate(from_currency, select_currency, api_key)
+        
+        win=tk.Tk()
+        win.title("Group 6 : Real time Currency converter result window")
+
+        win_canvas = tk.Canvas(win,height=250,width=600)
+        win_canvas.pack()
+        win_label = tk.Label(win, font=('Courier',10),justify = 'center',bd = 4,relief = RIDGE)
+        win_label.place(relx = 0.03, rely = 0.3, relheight=0.50,relwidth=0.9)
+        
+        win_label["text"] =  "The currency exachange from",from_currency,value,"to",select_currency,"is",result_value
+        
+
+	
+root = tk.Tk()
+root.title("Group 6 : Real time Currency converter")
+
+canvas = tk.Canvas(root,height=HEIGHT,width=WIDTH)
+canvas.pack()
+
+frame= tk.Frame(root, bd = 5, relief = GROOVE)
+frame.place(relx = 0.5, rely = 0.1, relwidth=0.75, relheight=0.80, anchor = 'n')
+
+label = tk.Label(frame, font = 40, text = "Enter Amount")
+label.place(relx = 0.25, rely = 0.05, relheight=0.10,relwidth=0.5)
+
+amount_entry = tk.Entry(frame, font = 40)
+amount_entry.place(relx = 0.25, rely = 0.15, relheight=0.10,relwidth=0.5)
+
+
+from_label = tk.Label(frame, font = 40, text = "From")
+from_label.place(relx = 0.25, rely = 0.25, relheight=0.10,relwidth=0.5)
+
+
+
+from_tkvar = StringVar(root)
+from_currencies = {'GHS','USD','EUR','JPY','BTC'}
+from_tkvar.set('USD')
+from_currency_popupMenu = OptionMenu(frame,from_tkvar, *from_currencies)
+from_currency_popupMenu.place(relx = 0.25, rely = 0.35, relheight=0.10,relwidth=0.5)
+from_tkvar.trace("w", from_callback)
+
+select_label = tk.Label(frame, font = 40, text = "To")
+select_label.place(relx = 0.25, rely = 0.45, relheight=0.10,relwidth=0.5)
+
+
+select_tkvar = StringVar(root)
+select_currencies = {'GHS','USD','EUR','JPY','BTC'}
+select_tkvar.set('USD')
+select_currency_popupMenu = OptionMenu(frame, select_tkvar, *select_currencies)
+select_currency_popupMenu.place(relx = 0.25, rely = 0.55, relheight=0.10,relwidth=0.5)
+select_tkvar.trace("w", select_callback)
+
+convert_button = tk.Button(frame,font = 40, text = "Convert", command = lambda: show_result())
+convert_button.place(relx = 0.25, rely = 0.70, relheight=0.10,relwidth=0.5)
+
+
+root.mainloop()
